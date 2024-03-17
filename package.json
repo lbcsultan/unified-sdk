@@ -9,14 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "14.1.3",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.1.3"
+    "thirdweb": "^1.0.0-beta-75bec3710151c4255c8314e3ce8dd366265b6c58-20240317031400"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
-    "@types/react-dom": "^18"
+    "@types/react-dom": "^18",
+    "typescript": "^5"
   }
 }

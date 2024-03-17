@@ -1,95 +1,59 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import styles from "./page.module.css"
+import { ConnectButton } from "@/app/thirdweb"
+import { chainById } from "./chains"
+import {
+  useActiveAccount,
+  useActiveWallet,
+  useActiveWalletConnectionStatus,
+} from "thirdweb/react"
+import { useEffect, useState } from "react"
+import { readContract, toEther } from "thirdweb"
+import { contract } from "./contracts"
 
 export default function Home() {
+  const status = useActiveWalletConnectionStatus()
+  console.log(status)
+
+  const account = useActiveAccount()
+  console.log(account)
+
+  const wallet = useActiveWallet()
+  console.log(wallet)
+
+  const [tokenBalance, setTokenBalance] = useState("0")
+  useEffect(() => {
+    const fetchTokenBalance = async () => {
+      const balance = await readContract({
+        contract: contract,
+        method: "function balanceOf(address) view returns (uint256)",
+        params: [account?.address as string],
+      })
+      setTokenBalance(toEther(balance))
+    }
+    if (account) {
+      fetchTokenBalance()
+    }
+  }, [account])
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <h1>Web3 App. Hello</h1>
+      <ConnectButton chain={chainById} />
+      {account && (
+        <>
+          <h2>Account data: </h2>
+          <p>Address: {account.address}</p>
+          <h2>Wallet data:</h2>
+          <p>Address: {wallet?.getAccount()?.address} </p>
+          <p>Wallet type: {wallet?.metadata.name}</p>
+          <p>Chain: {wallet?.getChain()?.id}</p>
+          <h2>Token balance:</h2>
+          <p>{tokenBalance}</p>
+        </>
+      )}
+      <h2>Connection:</h2>
+      <p>Status: {status}</p>
     </main>
-  );
+  )
 }
